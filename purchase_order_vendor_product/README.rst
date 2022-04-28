@@ -25,10 +25,7 @@ Purchase Order Vendor Products
 
 |badge1| |badge2| |badge3| |badge4| |badge5| 
 
-Purchase Order Vendor Products
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-* In Purchase Order show only products available from the selected vendor
+In Purchase Order show only products available from the selected vendor
 
 **Table of contents**
 
@@ -46,7 +43,7 @@ Changelog
 =========
 
 14.0.1.0.0
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~
 
 * Initial release
 

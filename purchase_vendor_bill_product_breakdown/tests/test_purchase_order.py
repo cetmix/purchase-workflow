@@ -29,16 +29,6 @@ class TestPurchaseOrder(common.TransactionCase):
             {"name": "Test Partner #2", "bill_components": True}
         )
 
-        self.env["account.journal"].create(
-            {
-                "name": "Inventory Valuation",
-                "type": "general",
-                "code": "STJ",
-                "company_id": self.env.user.company_id.id,
-                "show_on_dashboard": False,
-            }
-        ).id
-
         self.product_product_test_1 = ProductProduct.create(
             {
                 "name": "Test Product #1",

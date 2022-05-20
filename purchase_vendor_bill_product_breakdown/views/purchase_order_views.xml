@@ -17,7 +17,7 @@
                     name="action_open_component_view"
                     type="object"
                     icon="fa-list"
-                    attrs="{'invisible': ['|', ('state', '!=', 'purchase'), ('bill_components', '=', False)]}"
+                    attrs="{'invisible': [('bill_components', '=', False)]}"
                 />
             </xpath>
         </field>
@@ -30,7 +30,7 @@
         <field name="arch" type="xml">
             <form string="Product Components">
                 <sheet>
-                    <field name="last_qty_invoiced" />
+                    <field name="last_qty_invoiced" invisible="1" />
                     <field name="component_ids" widget="one2many">
                         <tree string="Components" editable="bottom">
                             <control>

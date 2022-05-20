@@ -1,4 +1,5 @@
 from odoo import api, fields, models
+from odoo.tools.float_utils import float_is_zero
 
 
 class PurchaseOrder(models.Model):
@@ -23,3 +24,24 @@ class PurchaseOrder(models.Model):
                     line._prepare_component_account_move_line()
                 )
         return invoice_vals
+
+    @api.depends("state", "order_line.qty_to_invoice")
+    def _get_invoiced(self):
+        super(PurchaseOrder, self)._get_invoiced()
+        precision = self.env["decimal.precision"].precision_get(
+            "Product Unit of Measure"
+        )
+        for order in self:
+            if not order.bill_components:
+                continue
+            if (
+                all(
+                    float_is_zero(
+                        line.qty_invoiced - line.qty_received,
+                        precision_digits=precision,
+                    )
+                    for line in order.order_line.filtered(lambda l: not l.display_type)
+                )
+                and order.invoice_ids
+            ):
+                order.invoice_status = "invoiced"

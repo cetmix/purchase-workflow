@@ -74,8 +74,6 @@ class PurchaseOrderLine(models.Model):
     def action_open_component_view(self):
         """Open view with product components"""
         self.ensure_one()
-        if self.state != "purchase":
-            return False
         view_id = self.env.ref(
             "purchase_vendor_bill_product_breakdown.purchase_order_line_components_form_view"
         ).id
@@ -97,6 +95,8 @@ class PurchaseOrderLine(models.Model):
         date = move and move.date or fields.Date.today()
         lines = []
         for component in self.component_ids:
+            if component.qty_to_invoice == 0:
+                continue
             lines.append(
                 (
                     0,
@@ -163,6 +163,17 @@ class PurchaseOrderLine(models.Model):
             if line._has_components():
                 line.qty_invoiced = line.last_qty_invoiced
 
+    @api.model
+    def _compute_invoice_qty(self, qty_components, invoice_count):
+        index = 0
+        count_components = len(qty_components)
+        invoice_qty = 0.0
+        iter_index = int(count_components / invoice_count)
+        while index != count_components:
+            invoice_qty += sum(set(qty_components[index : index + iter_index]))
+            index += iter_index
+        return invoice_qty
+
     @api.depends(
         "invoice_lines.move_id.state",
         "invoice_lines.quantity",
@@ -174,8 +185,14 @@ class PurchaseOrderLine(models.Model):
             invoice_lines = line.invoice_lines.filtered(
                 lambda l: l.product_id in line.component_ids.mapped("component_id")
             )
-            invoice_qty = sum(set(invoice_lines.mapped("qty_components")))
-            inoivce_move_type = invoice_lines.mapped("move_id").mapped("move_type")
+            invoice_qty = self._compute_invoice_qty(
+                invoice_lines.mapped("qty_components"),
+                len(invoice_lines.mapped("move_id")),
+            )
+            # invoice_qty = sum(set(invoice_lines.mapped("qty_components")))
+            invoice_move_type = set(invoice_lines.mapped("move_id").mapped("move_type"))
             line.last_qty_invoiced = (
-                invoice_qty if inoivce_move_type != "in_refund" else invoice_qty * -1
+                invoice_qty
+                if "in_refund" not in invoice_move_type
+                else invoice_qty * -1
             )

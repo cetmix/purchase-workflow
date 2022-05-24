@@ -16,7 +16,7 @@ class ProductSupplierInfoComponent(models.Model):
     product_uom_qty = fields.Float(string="Qty per Unit", default=1, required=True)
     product_uom_id = fields.Many2one(
         "uom.uom",
-        string="Unit od Measure",
+        string="Unit of Measure",
         domain="[('category_id', '=', component_uom_category_id)]",
         required=True,
     )

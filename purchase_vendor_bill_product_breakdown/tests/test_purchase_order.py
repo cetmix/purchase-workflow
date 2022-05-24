@@ -146,6 +146,8 @@ class TestPurchaseOrder(common.TransactionCase):
             msg="Invoice line ids must be empty list",
         )
         order.write({"bill_components": True})
+        order.button_confirm()
+        order.order_line.write({"qty_received": 1})
         invoice_vals = order._prepare_invoice()
         self.assertEqual(
             len(invoice_vals["invoice_line_ids"]),

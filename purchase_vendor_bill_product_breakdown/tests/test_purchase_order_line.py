@@ -326,6 +326,7 @@ class TestPurchaseOrderLine(common.TransactionCase):
                 "product_qty": 4.0,
             }
         )
+        test_line_1.component_ids.write({"qty_to_invoice": 1.0})
 
         account_move_lines = test_line_1._prepare_component_account_move_line()
 

@@ -185,9 +185,14 @@ class PurchaseOrderLine(models.Model):
             invoice_lines = line.invoice_lines.filtered(
                 lambda l: l.product_id in line.component_ids.mapped("component_id")
             )
-            invoice_qty = self._compute_invoice_qty(
-                invoice_lines.mapped("qty_components"),
-                len(invoice_lines.mapped("move_id")),
+            move_count = len(invoice_lines.mapped("move_id"))
+            invoice_qty = (
+                0
+                if move_count == 0
+                else self._compute_invoice_qty(
+                    invoice_lines.mapped("qty_components"),
+                    move_count,
+                )
             )
             # invoice_qty = sum(set(invoice_lines.mapped("qty_components")))
             invoice_move_type = set(invoice_lines.mapped("move_id").mapped("move_type"))

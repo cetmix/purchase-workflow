@@ -49,6 +49,7 @@
                                 name="product_uom_qty"
                                 attrs="{'readonly': [('parent.last_qty_invoiced', '>', 0)]}"
                             />
+                            <field name="total" />
                             <field name="total_qty" />
                             <field name="qty_invoiced" />
                             <field

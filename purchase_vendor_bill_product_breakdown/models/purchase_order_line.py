@@ -95,35 +95,35 @@ class PurchaseOrderLine(models.Model):
         date = move and move.date or fields.Date.today()
         lines = []
         for component in self.component_ids:
-            if component.qty_to_invoice == 0:
-                continue
-            lines.append(
-                (
-                    0,
-                    0,
-                    {
-                        "display_type": self.display_type,
-                        "sequence": self.sequence,
-                        "name": "%s: %s"
-                        % (self.order_id.name, component.component_id.name),
-                        "product_id": component.component_id.id,
-                        "product_uom_id": component.product_uom_id.id,
-                        "quantity": component.qty_to_invoice,
-                        "qty_components": self.qty_received - self.last_qty_invoiced,
-                        "price_unit": self.currency_id._convert(
-                            component.price_unit,
-                            aml_currency,
-                            self.company_id,
-                            date,
-                            round=False,
-                        ),
-                        "tax_ids": [(6, 0, self.taxes_id.ids)],
-                        "analytic_account_id": self.account_analytic_id.id,
-                        "analytic_tag_ids": [(6, 0, self.analytic_tag_ids.ids)],
-                        "purchase_line_id": self.id,
-                    },
+            if component.qty_to_invoice != 0:
+                lines.append(
+                    (
+                        0,
+                        0,
+                        {
+                            "display_type": self.display_type,
+                            "sequence": self.sequence,
+                            "name": "%s: %s"
+                            % (self.order_id.name, component.component_id.name),
+                            "product_id": component.component_id.id,
+                            "product_uom_id": component.product_uom_id.id,
+                            "quantity": component.qty_to_invoice,
+                            "qty_components": self.qty_received
+                            - self.last_qty_invoiced,
+                            "price_unit": self.currency_id._convert(
+                                component.price_unit,
+                                aml_currency,
+                                self.company_id,
+                                date,
+                                round=False,
+                            ),
+                            "tax_ids": [(6, 0, self.taxes_id.ids)],
+                            "analytic_account_id": self.account_analytic_id.id,
+                            "analytic_tag_ids": [(6, 0, self.analytic_tag_ids.ids)],
+                            "purchase_line_id": self.id,
+                        },
+                    )
                 )
-            )
         if not move:
             return lines
         currency = (

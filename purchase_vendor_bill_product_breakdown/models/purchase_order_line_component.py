@@ -12,10 +12,13 @@ class PurchaseOrderLineComponent(models.Model):
     component_uom_category_id = fields.Many2one(
         related="component_id.uom_id.category_id"
     )
-    product_uom_qty = fields.Float(string="Qty/unit", default=1.0, required=True)
-    total_qty = fields.Float(string="Total Qty", required=True)
+    product_uom_qty = fields.Float(
+        string="Quantity per Unit", default=1.0, required=True
+    )
+    total = fields.Float(string="Quantity", compute="_compute_total")
+    total_qty = fields.Float(string="Received", required=True)
     qty_invoiced = fields.Float(
-        string="Billed Qty",
+        string="Billed",
         compute="_compute_qty_invoiced",
         store=True,
         readonly=1,
@@ -35,9 +38,9 @@ class PurchaseOrderLineComponent(models.Model):
     )
 
     price_unit = fields.Float(
-        stirng="Unit Price",
+        string="Unit Price",
         required=True,
-        digits="Component Price",
+        digits="Unit Price",
     )
     price_subtotal = fields.Monetary(
         compute="_compute_price_subtotal", string="Subtotal", store=True
@@ -49,6 +52,12 @@ class PurchaseOrderLineComponent(models.Model):
         readonly=True,
     )
 
+    @api.depends("product_uom_qty", "line_id.product_qty")
+    def _compute_total(self):
+        """Compute total Qty for component"""
+        for rec in self:
+            rec.total = rec.product_uom_qty * rec.line_id.product_qty
+
     def _update_qty(self, qty_received):
         """
         Update Total Quantity based on Quantity Received
@@ -58,7 +67,7 @@ class PurchaseOrderLineComponent(models.Model):
         for rec in self:
             rec.total_qty = rec.qty_invoiced + rec.product_uom_qty * qty_received
 
-    @api.depends("total_qty", "price_unit", "line_id.taxes_id")
+    @api.depends("total", "price_unit", "line_id.taxes_id")
     def _compute_price_subtotal(self):
         """Compute subtotal value"""
         for line in self:
@@ -81,7 +90,7 @@ class PurchaseOrderLineComponent(models.Model):
         return {
             "price_unit": self.price_unit,
             "currency_id": self.line_id.order_id.currency_id,
-            "product_qty": self.total_qty,
+            "product_qty": self.total,
             "product": self.component_id,
             "partner": self.line_id.order_id.partner_id,
         }
@@ -121,16 +130,15 @@ class PurchaseOrderLineComponent(models.Model):
     @api.onchange("component_id")
     def onchange_component_id(self):
         """Set default value at component onchange"""
-        if not self.component_id:
-            return
-        self.write(
-            {
-                "product_uom_qty": 1,
-                "product_uom_id": self.component_id.uom_po_id
-                or self.component_id.uom_id,
-                "price_unit": self.component_id.standard_price,
-            }
-        )
+        if len(self.component_id) == 1:
+            self.write(
+                {
+                    "product_uom_qty": 1,
+                    "product_uom_id": self.component_id.uom_po_id
+                    or self.component_id.uom_id,
+                    "price_unit": self.component_id.standard_price,
+                }
+            )
 
     @api.model
     def create(self, vals):

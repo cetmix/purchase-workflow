@@ -154,3 +154,38 @@ class TestPurchaseOrder(common.TransactionCase):
             2,
             msg="Count invoice line must be equal 2",
         )
+
+    def test_get_invoiced(self):
+        order = self.env["purchase.order"].create(
+            {
+                "partner_id": self.res_partner_test_bill_components.id,
+            }
+        )
+        order_line = (
+            self.env["purchase.order.line"].create(
+                {
+                    "order_id": order.id,
+                    "product_id": self.product_product_test_1.id,
+                    "name": self.product_product_test_1.name,
+                    "price_unit": 500.0,
+                    "product_qty": 5.0,
+                }
+            ),
+        )
+        order.button_confirm()
+        self.assertEqual(
+            order.invoice_status, "no", msg="Invoice status must be equal 'no'"
+        )
+        order_line[0].qty_received = 1
+        self.assertEqual(
+            order.invoice_status,
+            "to invoice",
+            msg="Invoice status must be equal 'to invoice'",
+        )
+        order.action_create_invoice()
+        order._get_invoiced()
+        self.assertEqual(
+            order.invoice_status,
+            "invoiced",
+            msg="Invoice status must be equal 'invoiced'",
+        )

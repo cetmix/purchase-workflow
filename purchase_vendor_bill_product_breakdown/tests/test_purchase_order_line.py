@@ -395,3 +395,45 @@ class TestPurchaseOrderLine(common.TransactionCase):
             "skip_record" in result.keys(),
             msg="Key 'skip_record' must be contains in result",
         )
+
+    def test_action_open_component_view(self):
+        PurchaseOrderLine = self.env["purchase.order.line"]
+        view_id = self.ref(
+            "purchase_vendor_bill_product_breakdown.purchase_order_line_components_form_view"
+        )
+        purchase_order_line_test_1 = PurchaseOrderLine.create(
+            {
+                "order_id": self.purchase_order_test_1.id,
+                "product_id": self.product_product_test_1.id,
+                "name": self.product_product_test_1.name,
+                "price_unit": 50.0,
+                "product_qty": 5.0,
+            }
+        )
+        action = purchase_order_line_test_1.action_open_component_view()
+        self.assertEqual(
+            action["type"],
+            "ir.actions.act_window",
+            msg="Action type must be equal 'ir.actions.act_window'",
+        )
+        self.assertEqual(
+            action["view_mode"], "form", msg="Action view mode must be equal 'form'"
+        )
+        self.assertEqual(
+            action["res_model"],
+            purchase_order_line_test_1._name,
+            msg="Action res model must be equal 'purchase.order.line'",
+        )
+        self.assertEqual(
+            action["res_id"],
+            purchase_order_line_test_1.id,
+            msg="Action res id must be equal {}".format(purchase_order_line_test_1.id),
+        )
+        self.assertEqual(
+            action["view_id"],
+            view_id,
+            msg="Action view id must be equal {}".format(view_id),
+        )
+        self.assertEqual(
+            action["target"], "new", msg="Action target must be equal 'new'"
+        )

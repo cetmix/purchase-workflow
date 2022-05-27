@@ -814,3 +814,71 @@ class TestComponentsFlow(common.TransactionCase):
         self.assertEqual(
             invoice_line_3.price_subtotal, 60, msg="Subtotal must be equal 60"
         )
+
+    def test_onchange_component_id(self):
+        PurchaseOrderLineComponent = self.env["purchase.order.line.component"]
+        PurchaseOrderLine = self.env["purchase.order.line"]
+        PurchaseOrder = self.env["purchase.order"]
+
+        purchase_order_test_1 = PurchaseOrder.create(
+            {
+                "partner_id": self.res_partner_test_with_bill_components.id,
+            }
+        )
+
+        test_line_1 = PurchaseOrderLine.create(
+            {
+                "order_id": purchase_order_test_1.id,
+                "product_id": self.product_product_test_1.id,
+                "name": self.product_product_test_1.name,
+                "price_unit": 4.0,
+                "product_qty": 4.0,
+            }
+        )
+
+        purchase_order_line_component = PurchaseOrderLineComponent.new(
+            {
+                "line_id": test_line_1.id,
+                "product_uom_qty": 2.0,
+            }
+        )
+
+        purchase_order_line_component.onchange_component_id()
+        self.assertEqual(
+            purchase_order_line_component.price_unit,
+            0.0,
+            msg="Price Unit must be equal 0.0",
+        )
+        self.assertEqual(
+            purchase_order_line_component.product_uom_qty,
+            2,
+            msg="Product UOM Qty must be equal 2",
+        )
+        self.assertEqual(
+            purchase_order_line_component.product_uom_id,
+            self.env["uom.uom"],
+            msg="Product UOM must be not set",
+        )
+        self.assertEqual(
+            purchase_order_line_component.component_id,
+            self.env["product.product"],
+            msg="Component must be empty",
+        )
+        purchase_order_line_component.component_id = self.product_component_test_1.id
+        purchase_order_line_component.onchange_component_id()
+        uom_unit_id = self.ref("uom.product_uom_unit")
+        self.assertEqual(
+            purchase_order_line_component.product_uom_qty,
+            1,
+            msg="Product UOM Qty must be equal 1",
+        )
+        self.assertEqual(
+            purchase_order_line_component.product_uom_id.id,
+            uom_unit_id,
+            msg="Product UOM must be equal {}".format(uom_unit_id),
+        )
+        self.assertEqual(
+            purchase_order_line_component.price_unit,
+            1.0,
+            msg="Price Unit must be equal 10.0",
+        )

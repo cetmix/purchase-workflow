@@ -5,8 +5,8 @@
     "version": "14.0.1.0.0",
     "category": "Purchase Management",
     "website": "https://github.com/OCA/purchase-workflow",
-    "depends": ["purchase_vendor_bill_product_breakdown", "stock"],
-    "data": [],
+    "depends": ["purchase_vendor_product_breakdown", "stock"],
+    "demo": ["data/demo.xml"],
     "license": "AGPL-3",
     "installable": True,
 }

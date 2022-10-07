@@ -7,9 +7,6 @@ class PurchaseOrderLine(models.Model):
     @api.depends("move_ids.state", "move_ids.product_uom_qty", "move_ids.product_uom")
     def _compute_qty_received(self):
         super(PurchaseOrderLine, self)._compute_qty_received()
-        for line in self:
+        for line in self.filtered(lambda l: l.qty_received and l._has_components()):
             # update product components qty
-            if line.qty_received and line._has_components():
-                line.component_ids._update_qty(
-                    line.qty_received - line.last_qty_invoiced
-                )
+            line.component_ids._update_qty(line.qty_received - line.last_qty_invoiced)

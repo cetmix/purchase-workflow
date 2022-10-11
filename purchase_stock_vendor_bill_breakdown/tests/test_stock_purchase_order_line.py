@@ -1,14 +1,12 @@
 from odoo.tests import Form, tagged
 
-from odoo.addons.purchase_vendor_product_breakdown.tests.common import (
+from odoo.addons.purchase_vendor_bill_breakdown.tests.common import (
     PurchaseTransactionCase,
 )
 
 
 @tagged("post_install", "-at_install")
 class TestStockPurchaseOrderLine(PurchaseTransactionCase):
-    # purchase_vendor_product_breakdown
-    # product_product_test_1
     def setUp(self):
         super(TestStockPurchaseOrderLine, self).setUp()
         self.purchase_order_1 = self.get_create_order(self.res_partner_supplier)

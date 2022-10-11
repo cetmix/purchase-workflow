@@ -2,21 +2,21 @@
 <odoo noupdate="1">
 
     <record
-        id="supplierinfo_product_breakdown.product_product_test_demo_toolbox"
+        id="purchase_supplierinfo_product_breakdown.product_product_test_demo_toolbox"
         model="product.product"
     >
         <field name="type">product</field>
     </record>
 
     <record
-        id="supplierinfo_product_breakdown.product_product_test_demo_hammer"
+        id="purchase_supplierinfo_product_breakdown.product_product_test_demo_hammer"
         model="product.product"
     >
         <field name="type">product</field>
     </record>
 
     <record
-        id="supplierinfo_product_breakdown.product_product_test_demo_saw"
+        id="purchase_supplierinfo_product_breakdown.product_product_test_demo_saw"
         model="product.product"
     >
         <field name="type">product</field>
